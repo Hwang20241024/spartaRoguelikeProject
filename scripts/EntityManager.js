@@ -1,4 +1,5 @@
-import { Entity } from './Entity/Entity.js.';
+import * as Entity from './Entity';
+
 
 export class EntityManager extends Entity{
 
