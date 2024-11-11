@@ -1,0 +1,3 @@
+# .gitignore 파일 생성하기 : New-Item .gitignore -ItemType File
+# node_modules 폴더는 Git에서 추적하지 않음
+node_modules/
