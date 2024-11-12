@@ -14,34 +14,60 @@ export class SceneManager {
   constructor() {
     this.#sceneManagerSettings = {
       isGame : true,
-      titleScene : new Scenes.TitleScene("TitleScene")
-    }
+      titleScene : new Scenes.TitleScene("TitleScene"),
+      mainScene : new Scenes.MainScene("MainScene"),
+      gameOverScene : new Scenes.GameOverScene("GameOverScene"),
+    } 
   }
-
+  
   // 초기화.
   InitializationScen(){
-    // 설정이다.
-    this.#sceneManagerSettings.titleScene.SettingTitleScene();
-    this.#sceneManagerSettings.titleScene.SetisScene(true);
+    const { titleScene, mainScene, gameOverScene } = this.#sceneManagerSettings;
+    
+    // 타이틀씬 세팅. (여기서 중요한건 타이틀씬은 무조건 들어가기에 바로 true)
+    titleScene.Setting();
+    titleScene.SetisScene(true);
+
+    // 메인씬 세팅.
+    mainScene.Setting();
+
+    // 게임오버씬 세팅
+    gameOverScene.Setting();
   }
 
-  // Scen 출력
-  async TitleSceneDraw () {
-    
-    // 타이틀씬 그리는 로직. (타이틀씬이 참일 경우.)
-    while(this.#sceneManagerSettings.titleScene.GetisScene())
-    {
-      await this.#sceneManagerSettings.titleScene.Draw();
-      let test = await this.#sceneManagerSettings.titleScene.RunMenu(0);
 
-      // 게임종료를 눌렀을 경우.
-      if(typeof test === 'number' && test === 2){
-        this.#sceneManagerSettings.titleScene.SetisScene(false);
+  async Run() {
+    const { titleScene, mainScene, gameOverScene } = this.#sceneManagerSettings;
 
-      // 이부분은 테스트니깐 지울꺼임. 
-      this.#sceneManagerSettings.isGame = false;  
-      }
+    // 타이틀 실행.
+    if(titleScene.GetisScene()) {
+      await titleScene.Run();
     }
+
+    // 이거 다른 씬있으면 추가해야함.
+    if(!titleScene.GetisScene() && !mainScene.GetisScene()) {
+      mainScene.SetisScene(true);
+    }
+
+    // 메인 실행.
+    if(mainScene.GetisScene()){
+      await mainScene.Run();
+    }
+
+    // 테스트용도 니깐 나중에 지우자.
+    if(!titleScene.GetisScene() && !mainScene.GetisScene()) {
+      gameOverScene.SetisScene(true);
+    }
+
+    if(gameOverScene.GetisScene()){
+      await gameOverScene.Run();
+    }
+
+    //테스트 용도니깐 지우자
+    if(!titleScene.GetisScene() && !mainScene.GetisScene() && !gameOverScene.GetisScene()) {
+      titleScene.SetisScene(true);
+    }
+
   }
 
 

@@ -9,7 +9,7 @@ export class TitleScene extends Scene {
   }
 
   async Draw(){
-    console.log(`${this.GetSceneTitle()} 입니다.`);
+    console.clear();
     console.log(`+----------------------+`);
     console.log(`|      대충 타이틀     |`);
     console.log(`+----------------------+`);
@@ -18,8 +18,24 @@ export class TitleScene extends Scene {
     console.log(`+----------------------+`);
   }
 
+  async Run(){
+    // Scene는 개별적으로 돌아간다.
+    while(this.GetisScene()){
+      await this.Draw(); 
+      let menuValue = await this.RunMenu(0);
+
+      // 게임시작.
+      if(typeof menuValue === 'number' && menuValue === 1) {
+        this.SetisScene(false);
+      } else {
+        process.exit(0);
+      }
+      
+    }
+  }
+
   // 타이틀 세팅.
-  SettingTitleScene () {
+  Setting() {
     // 메뉴 세팅.
     let name = "TitleScene";
     let message = "당신의 행동을 선택하세요.";
@@ -28,19 +44,6 @@ export class TitleScene extends Scene {
       { name: '게임종료', value: 2 },
   ];
     this.MenuMake(name, message, choices);
-  }
-
-  // 타이틀 상태.
-  GetisTitleScene() {
-    return this.isTitleScene;
-  }
-
-  SetisTitleScene(value) {
-    if (typeof value === 'boolean'){
-      this.isTitleScene = value;
-      return true;
-    }
-    return null;
   }
 
 }

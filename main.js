@@ -20,6 +20,6 @@ console.log(utilityManager.GetQueue().peek());
 // 여기에 매인로직
 while(gameScene.GetisGame()) {
     // 타이틀씬을 그린다.
-    await gameScene.TitleSceneDraw();
+    await gameScene.Run();
 
 }
