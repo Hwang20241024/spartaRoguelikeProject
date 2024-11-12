@@ -1,6 +1,6 @@
 import { Scene } from './scene.js';
 import { SubScene } from './SubScene/index.js'; 
-import { CanvasManager } from '../CanvasManager.js';
+//import { CanvasManager } from '../CanvasManager.js';
 
 export class MainScene extends Scene {
   // 생성자
@@ -38,7 +38,7 @@ export class MainScene extends Scene {
       await this.Draw();
       let menuValue = await this.RunMenu(0);
 
-      // 선택지 조건
+      // 선택지 조건 
       if (typeof menuValue === 'number' && menuValue === 1) {
         this.WorkOrder.SetisScene(true);
         await this.WorkOrder.Run();
@@ -56,6 +56,7 @@ export class MainScene extends Scene {
       if(count === 3) {
         this.forcedRepayment.SetisScene(true);
         await this.forcedRepayment.Run();
+        
         if(this.forcedRepayment.GetisPriceToPay()){
           this.SetisScene(false);
         } else {

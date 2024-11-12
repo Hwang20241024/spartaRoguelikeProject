@@ -1,25 +1,28 @@
-// 최상위 main.js : chalk figlet readline-sync inquirer 라이브러리 추가.
+import SceneManager  from './scripts/SceneManager.js';       
+import UtilityManager  from './scripts/UtilityManager.js';   
+import GameManager  from './scripts/GameManager.js';
+import EntityManager  from './scripts/EntityManager.js';
 
-
-// 이곳엔 스크립트 추가
-import { SceneManager } from './scripts/SceneManager.js';
-import { UtilityManager } from './scripts/UtilityManager.js';
-
-// 매니저 선언.
-let gameScene = new SceneManager();
-let utilityManager = new UtilityManager();
+// 나중에 햇갈리지 않게 매니져들 싹다 선언하자.
+let gameScene = SceneManager.getInstance();
+let utilityManager = UtilityManager.getInstance();
+let gameManager = GameManager.getInstance();
+let entityManager = EntityManager.getInstance();
 
 // 씬메니저 초기화.
 gameScene.InitializationScen();
 
-// 유틸리티 메니져 테스트
-utilityManager.GetQueue().Enqueue(111);
-console.log(utilityManager.GetQueue().peek());
+// 테스트용도.~ 담피하고 싱글턴으로 바꾸자 씬매니저도 
+gameManager.Test();
 
 
-// 여기에 매인로직
-while(gameScene.GetisGame()) {
-    // 타이틀씬을 그린다.
-    await gameScene.Run();
+//PlayerLoad
+// 불러오기~
+//utilityManager.LoadFile();
 
-}
+// 게임 로직.
+// while(gameScene.GetisGame()) {
+//     // 타이틀씬을 그린다.
+//     await gameScene.Run();
+
+// }

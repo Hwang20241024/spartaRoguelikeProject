@@ -6,20 +6,34 @@ import { Scenes } from './Scene/index.js';
 
 
 // 씬들을 관리한 메니저다.
-export class SceneManager {
+export default class SceneManager {
   // privet
-  #sceneManagerSettings;
+  static #instance = null; // 싱글턴 전용 필드.
+  #sceneManagerSettings;   // 인스턴스 전용 필드.
 
-  // 생성자.
+  // private 생성자
   constructor() {
+    if (SceneManager.#instance) {
+      throw new Error("Use GameManager.getInstance() 를 사용하여 인스턴스에 접근하세요.");
+    }
+
+    // 여기에 필요한 초기화 코드를 작성하세요
     this.#sceneManagerSettings = {
       isGame : true,
       titleScene : new Scenes.TitleScene("TitleScene"),
       mainScene : new Scenes.MainScene("MainScene"),
       gameOverScene : new Scenes.GameOverScene("GameOverScene"),
-    } 
+    }
   }
-  
+
+  // 인스턴스를 생성하거나 반환하는 static 메서드
+  static getInstance() {
+    if (!SceneManager.#instance) {
+      SceneManager.#instance = new SceneManager();
+    }
+    return SceneManager.#instance;
+  }
+
   // 초기화.
   InitializationScen(){
     const { titleScene, mainScene, gameOverScene } = this.#sceneManagerSettings;

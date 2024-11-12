@@ -1,5 +1,6 @@
 import { Scene } from './scene.js';
 import { CanvasManager } from '../CanvasManager.js';
+import GameManager  from '../GameManager.js';
 
 export class TitleScene extends Scene {
   // 생성자
@@ -19,6 +20,7 @@ export class TitleScene extends Scene {
   }
 
   async Run(){
+    
     // Scene는 개별적으로 돌아간다.
     while(this.GetisScene()){
       await this.Draw(); 

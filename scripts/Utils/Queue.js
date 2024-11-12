@@ -1,5 +1,5 @@
 // 자료구조 큐
-export class Queue {
+export default class Queue {
   // 자료구조 큐 방식
   constructor() {
     this.arr = [];
@@ -23,10 +23,6 @@ export class Queue {
 
   // 요소 추가
   Enqueue(value) {
-    if (typeof value !== 'number') {
-      return null;
-    }
-
     this.arr.push(value);
     return true;
   }
@@ -39,5 +35,10 @@ export class Queue {
   // 큐 전체 초기화.
   clear(arr) {
     this.arr.length = 0;
+  }
+
+  // 큐 전체 요소 확인
+  GetQueue() {
+    return this.arr;
   }
 }
