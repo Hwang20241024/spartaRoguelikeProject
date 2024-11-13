@@ -1,67 +1,42 @@
 [
   {
-    "name": "player",
-    "hp": 7,
-    "actionPoints": 21,
-    "isAttack": false,
-    "isDefense": false,
-    "isSkill": false,
-    "isDead": true,
-    "priority": 0.4
+    "entitytype": 1,
+    "name": "1번직원",
+    "hp": 10,
+    "priority": 0.8,
+    "battleType": 2,
+    "party": 1
   },
   {
-    "battleType": 3
+    "entitytype": 1,
+    "name": "2번직원",
+    "hp": 10,
+    "priority": 0.8,
+    "battleType": 2,
+    "party": 1
   },
   {
-    "name": "player",
-    "hp": 4,
-    "actionPoints": 9,
-    "isAttack": false,
-    "isDefense": false,
-    "isSkill": false,
-    "isDead": true,
-    "priority": 0.5
+    "entitytype": 1,
+    "name": "3번직원",
+    "hp": 10,
+    "priority": 0.8,
+    "battleType": 1,
+    "party": 1
   },
   {
-    "battleType": 2
+    "entitytype": 1,
+    "name": "4번직원",
+    "hp": 10,
+    "priority": 0.8,
+    "battleType": 3,
+    "party": 1
   },
   {
-    "name": "player",
-    "hp": 3,
-    "actionPoints": 55,
-    "isAttack": false,
-    "isDefense": false,
-    "isSkill": false,
-    "isDead": true,
-    "priority": 0.9
-  },
-  {
-    "battleType": 2
-  },
-  {
-    "name": "player",
-    "hp": 9,
-    "actionPoints": 32,
-    "isAttack": false,
-    "isDefense": false,
-    "isSkill": false,
-    "isDead": true,
-    "priority": 0.3
-  },
-  {
-    "battleType": 3
-  },
-  {
-    "name": "player",
-    "hp": 8,
-    "actionPoints": 89,
-    "isAttack": false,
-    "isDefense": false,
-    "isSkill": false,
-    "isDead": true,
-    "priority": 0.2
-  },
-  {
-    "battleType": 1
+    "entitytype": 1,
+    "name": "5번직원",
+    "hp": 10,
+    "priority": 0.8,
+    "battleType": 3,
+    "party": 1
   }
 ]

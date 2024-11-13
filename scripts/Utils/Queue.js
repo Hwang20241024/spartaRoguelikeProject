@@ -33,12 +33,19 @@ export default class Queue {
   }
 
   // 큐 전체 초기화.
-  clear(arr) {
-    this.arr.length = 0;
+  clear() {
+    this.arr = [];
   }
 
   // 큐 전체 요소 확인
   GetQueue() {
     return this.arr;
   }
+
+  // 큐 전체 요소 복구하는용도.(모르겠다. 이러면 큐 의미 없는데.....)
+  SrestorationQueue(arr) {
+    this.arr = arr;
+  }
+
+  
 }

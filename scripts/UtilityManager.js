@@ -17,8 +17,6 @@ export default class UtilityManager {
       "BattlePriority" : new Utils.Queue(),
       "Monster" : new Utils.Queue(),
       "Player" : new Utils.Queue(),
-      "MonsterParty" : new Utils.Queue(),
-      "PlayerParty" : new Utils.Queue(),
     }
 
     // FileIO

@@ -1,8 +1,8 @@
 import Entity from './Entity.js';
 
 export default class Player extends Entity {
-  constructor(name, hp, alive, priority) {
-    super(name, hp, alive, priority);
+  constructor(entitytype, name, hp, priority, battleType, party) {
+    super(entitytype, name, hp, priority, battleType, party);
     this.test = 0;
   }
 
