@@ -68,7 +68,7 @@ export default class Entity {
 
   // 현재 Hp를 수정한다.
   SetHp(value) {
-    this.#Information.hp += value;
+    this.#Information.hp = value;
   }
 
   // 현재 공격 정보를 가져온다.

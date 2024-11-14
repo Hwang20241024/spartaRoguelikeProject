@@ -18,7 +18,11 @@ export default class GameManager {
     }
     // 여기에 필요한 초기화 코드를 작성하세요
     this.gameState = {};
-    this.count = 0;
+    this.turnCount = 0; // 턴 카운터
+    
+    // 빛, 이자,
+    // 현재 가진돈,
+    // 
   }
 
   // 인스턴스를 생성하거나 반환하는 static 메서드
@@ -34,12 +38,13 @@ export default class GameManager {
     // 테스트용도 지울꺼다.
     this.count++;
     console.log("테스트다.");
-    console.log(`${this.count}번 호출되었습니다.`)
+    console.log(`${this.turnCount}번 호출되었습니다.`)
 
     let battleTest = BattleManager.getInstance();
 
     // 파티, 몬스터 코드
-    await battleTest.Run(1, 1);
+    await battleTest.Run(1, 1, 'Goblin');
+    //await battleTest.Run(1, 2, 'Slime');
 
 
     //저장 테스트

@@ -42,21 +42,26 @@ class EntityManager {
       this.playerList.Enqueue(new Entity.Player(1, '3번직원', 10, 0.8, 1, 1));
       this.playerList.Enqueue(new Entity.Player(1, '4번직원', 10, 0.8, 3, 1));
       this.playerList.Enqueue(new Entity.Player(1, '5번직원', 10, 0.8, 3, 1));
-      // 테스트다
+      
+      //일단 만들고 저장하자.
+      this.PlayerSave();
     } else {
       this.PlayerLoad();
     }
   }
 
   // 몬스터 초기화.
-  InitializeMonsters(entitytype, monsterCode, name, hp, priority, battleType, party, value = this.monsterLimit) {
+  InitializeMonsters(monsterCode, name, hp, priority, battleType, party, value = this.monsterLimit) {
     switch (monsterCode) {
       case 1:
         for (let i = 0; i < value; i++) {
-          this.monsterList.Enqueue(new Entity.Goblin(entitytype ,`${name}${i+1}`, hp, priority, battleType, party));
+          this.monsterList.Enqueue(new Entity.Goblin(2 ,`${name}${i+1}`, hp, priority, battleType, party));
         }
         break;
       case 2:
+        for (let i = 0; i < value; i++) {
+          this.monsterList.Enqueue(new Entity.Slime(2 ,`${name}${i+1}`, hp, priority, battleType, party));
+        }
         return true;
       default:
         return null;
