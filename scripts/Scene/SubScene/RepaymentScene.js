@@ -1,7 +1,7 @@
 import { Scene } from '../scene.js';
 
 // 특정 턴마다 이자를 내야함.
-export class ForcedRepaymentScene extends Scene {
+export class RepaymentScene extends Scene {
   // 생성자
   constructor(name) {
     super(name);

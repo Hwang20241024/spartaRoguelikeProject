@@ -1,4 +1,5 @@
 import inquirer from 'inquirer';
+import CanvasManager  from '../CanvasManager.js';
 
 // 앞으로 만들 모든 씬의 설계도.
 export class Scene {
@@ -10,9 +11,11 @@ export class Scene {
     this.#sceneSettings = {
       isScene: false,
       title: title,
-      delay: 0,
+      loadingSpeed: 0,
+      textSpeed: 0,
       menus: [],
     };
+
   }
 
   // 메뉴 만들기
@@ -35,7 +38,7 @@ export class Scene {
     this.#sceneSettings.menus.push(menu);
   }
 
-  // 메뉴 실행하기.
+  // 메뉴 실행하기. 이따 다른데 수정하면 바로 삭제.
   async RunMenu(index) {
     // 인덱스가 타입이 숫자형이 아니라면 바로 false 반환
     if (typeof index !== 'number') {
@@ -44,6 +47,7 @@ export class Scene {
     // 메뉴가 있고 , 인덱스가 메뉴의 길이를 넘지 않는다면.
     if (this.#sceneSettings.menus.length && this.#sceneSettings.menus.length > index) {
       const result  =  await inquirer.prompt([this.#sceneSettings.menus[index]]);
+
       // 개별로 쓰면 이럴 필요없는데. 여러군데에서 쓰니깐.. 동적으로 키이름 가져오기..
       let nameKey  = Object.keys(result)[0]; 
       return result[nameKey];
@@ -54,6 +58,29 @@ export class Scene {
   // 현재 씬의 실행을 알 수 있는 함수.
   GetisScene() {
     return this.#sceneSettings.isScene;
+  }
+
+  // 씬의 메뉴를 가져오는 함수.
+  GetSceneMenu(){
+    return this.#sceneSettings.menus;
+  }
+
+  // 텍스트 스피드
+  GetTextSpeed(){
+    return this.#sceneSettings.textSpeed;
+  }
+
+  SetTextSpeed(value) {
+    this.#sceneSettings.textSpeed = value;
+  }
+
+  // 로딩 스피드
+  GetLoadingSpeed(){
+    return this.#sceneSettings.loadingSpeed;
+  }
+  
+  SetLoadingSpeed(value) {
+    this.#sceneSettings.loadingSpeed = value;
   }
 
   // 씬의 실행을 수정하는 함수.

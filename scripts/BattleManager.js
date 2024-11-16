@@ -96,7 +96,7 @@ export default class BattleManager {
     let monsters = this.entityManager.GetMonsters();
 
     // 플레이어와 몬스터를 셋팅하자.
-    this.entityManager.InitializationPlayers();
+    //this.entityManager.InitializationPlayers();
 
     // monsterCode, name, hp, priority, battleType, party // 렌덤으로 돌리는거 만들어야함.
     this.entityManager.InitializeMonsters(monsterCode, mosterName, 5, 0.8, 3, 1);

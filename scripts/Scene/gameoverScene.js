@@ -1,5 +1,5 @@
 import { Scene } from './scene.js';
-import { CanvasManager } from '../CanvasManager.js';
+import  CanvasManager  from '../CanvasManager.js';
 export class GameOverScene extends Scene {
   // 생성자
   constructor(name) {

@@ -1,7 +1,7 @@
 import { Scene } from '../scene.js';
 
-// 직원 관리 씬
-export class DungeonStaffManager extends Scene {
+// 직원 채용씬.
+export class RecruitmentManager extends Scene {
   // 생성자
   constructor(name) {
     super(name);
@@ -10,9 +10,9 @@ export class DungeonStaffManager extends Scene {
   async Draw() {
     console.clear();
     console.log(`+----------------------+`);
-    console.log(`|      직원  관리      |`);
+    console.log(`|      직원  채용      |`);
     console.log(`+----------------------+`);
-    console.log(`|      파티 구성       |`);
+    console.log(`|      채용 하기       |`);
     console.log(`|      뒤로 가기       |`);
     console.log(`+----------------------+`);
   }
@@ -36,7 +36,7 @@ export class DungeonStaffManager extends Scene {
     let name = 'WorkOrderScene';
     let message = '당신의 행동을 선택하세요.';
     let choices = [
-      { name: '파티구성', value: 1 },
+      { name: '채용하기', value: 1 },
       { name: '뒤로가기', value: 2 },
     ];
     this.MenuMake(name, message, choices);

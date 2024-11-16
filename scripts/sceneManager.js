@@ -4,6 +4,8 @@
 // 해결방법 모든 임포트 정보를 가지고 있는 index생성.
 import { Scenes } from './Scene/index.js'; 
 
+import EntityManager from './EntityManager.js';
+
 
 // 씬들을 관리한 메니저다.
 export default class SceneManager {

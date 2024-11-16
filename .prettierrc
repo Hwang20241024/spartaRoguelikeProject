@@ -4,9 +4,10 @@
     "useTabs": false,
     "tabWidth": 2,
     "trailingComma": "all",
-    "printWidth": 100,
+    "printWidth": 400,
     "arrowParens": "always",
     "orderedImports": true,
     "bracketSpacing": true,
-    "jsxBracketSameLine": false
+    "jsxBracketSameLine": false,
+    "proseWrap": "never"  
 }

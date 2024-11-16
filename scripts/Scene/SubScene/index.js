@@ -1,11 +1,11 @@
-import { DungeonWorkOrder } from './dungeonWorkOrder.js'
-import { DungeonStaffManager } from './dungeonStaffManager.js'
-import { DungeonRecruitment } from './dungeonRecruitment.js'
-import { ForcedRepaymentScene } from './forcedRepaymentScene.js'
+import { TaskManager } from './TaskManager.js'
+import { StaffManager } from './StaffManager.js'
+import { RecruitmentManager } from './RecruitmentManager.js'
+import { RepaymentScene } from './RepaymentScene.js'
 
 export const SubScene = {
-    DungeonWorkOrder: DungeonWorkOrder,
-    DungeonStaffManager: DungeonStaffManager,
-    DungeonRecruitment: DungeonRecruitment,
-    ForcedRepaymentScene: ForcedRepaymentScene,
+    TaskManager: TaskManager,
+    StaffManager: StaffManager,
+    RecruitmentManager: RecruitmentManager,
+    RepaymentScene: RepaymentScene,
 };
