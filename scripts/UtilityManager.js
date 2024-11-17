@@ -50,6 +50,11 @@ export default class UtilityManager {
     return this.saveLoad.isFileEmpty();
   }
 
+  // 파일 삭제
+  FileClear() {
+    this.saveLoad.clearFile();
+  }
+
 
   
 }

@@ -6,6 +6,7 @@ import SceneManager from './SceneManager.js';
 import UtilityManager from './UtilityManager.js';
 import EntityManager from './EntityManager.js';
 import BattleManager from './BattleManager.js';
+import CanvasManager from './CanvasManager.js';
 
 // 싱글턴 방식
 // private static 변수: 인스턴스를 저장하여 클래스 외부에서 접근 불가.
@@ -16,56 +17,66 @@ export default class GameManager {
   // 클래스 인스턴스를 저장할 private static 변수
   static #instance = null;
 
+  // 모든 매니저 참조
+  static sceneManager;
+  static utilityManager;
+  static entityManager;
+  static battleManager;
+  static canvasManager;
+
+  // 저장관련 변수
+  static savedata = [];
+
+  // 게임로직의 변수 모움집!
+  static gameState = {
+    turnCount: 1, // 턴 카운터
+    debtDeadline: 50, // 빛 데드라인
+    interestDate: 5, // 이자 내야하는날.
+    debt: 200000000, // 현재 가진 빛
+    interest: 20000000, // 이자
+    currentFunds: 100000000, // 현재가진 머니
+    treatmentCost: 1000000, // 기본치료비
+    employeeCost:1000000 ,  // 직원채용 코스트
+    revenue: 2000000, // 기본 수입
+  };
+
   // private 생성자
   constructor() {
     if (GameManager.#instance) {
       throw new Error('Use GameManager.getInstance() 를 사용하여 인스턴스에 접근하세요.');
     }
-
-    // 저장관련 변수
-    this.savedata = [];
-
-    // 모든 메니저 참조
-    this.sceneManager = SceneManager.getInstance();
-    this.utilityManager = UtilityManager.getInstance();
-    this.entityManager = EntityManager.getInstance();
+    GameManager.sceneManager = SceneManager.getInstance(); // 씬메니저
+    GameManager.utilityManager = UtilityManager.getInstance(); // 유틸리티 매니저
+    GameManager.entityManager = EntityManager.getInstance(); // 엔티티 매니저
+    GameManager.battleManager = BattleManager.getInstance(); // 배틀 매니저
+    GameManager.canvasManager = CanvasManager.getInstance(); // 캔버스 매니저
   }
-
-  // 게임로직의 변수 모움집!
-  static gameState = {
-    turnCount: 0, // 턴 카운터
-    debtDeadline: 40, // 빛 데드라인
-    interestDate: 5, // 이자 내야하는날.
-    debt: 200000000, // 현재 가진 빛
-    interest: 0.01, // 이자 1퍼
-    currentFunds: 0, // 현재가진 머니
-    treatmentCost: 1000000, // 기본치료비
-    revenue: 2000000, // 기본 수입
-  };
 
   // 인스턴스를 생성하거나 반환하는 static 메서드
   static getInstance() {
     if (!GameManager.#instance) {
-      GameManager.#instance = new GameManager();
+      throw new Error('GameManager 인스턴스를 먼저 초기화해야 합니다.');
     }
     return GameManager.#instance;
   }
 
-  // 매니저 초기화.
-  async GameInitialization() {
-    // 씬 매니저 - 모든 씬 초기화.
-    this.sceneManager.InitializationScen();
+  // 게임매니저 초기화
+  static async initialization() {
+    if (!GameManager.#instance) {
+      GameManager.#instance = new GameManager();
 
-    // 엔티티 매니저 - 플레이어생성
-    // 플레이어는 파일 입출력이 연관되어있기 때문에 최초 실행할때 적용.
-    // 몬스터는 파티가 던전에 입장하면 생성.
-    this.loadGame();
+      // 씬 매니저 - 모든 씬 초기화.
+      GameManager.sceneManager.InitializationScen();
+
+      // 게임 정보 불러오자.
+      GameManager.loadGame();
+    }
   }
 
   // 씬 실행.
-  async Run() {
-    while (this.sceneManager.GetisGame()) {
-      await this.sceneManager.Run();
+  static async Run() {
+    while (GameManager.sceneManager.GetisGame()) {
+      await GameManager.sceneManager.Run();
     }
   }
 
@@ -74,50 +85,65 @@ export default class GameManager {
     return GameManager.gameState;
   }
 
+  // 현재 가진 돈 수정
+  static SetCurrentFunds(value) {
+    GameManager.gameState.currentFunds = value;
+  }
+
+  // 턴 수정
+  static SetTurnCount(value) {
+    GameManager.gameState.turnCount = value;
+  }
+
+   // 빚
+   static SetDebt(value) {
+    GameManager.gameState.debt = value;
+  }
+
   // 세이브 파일을 로드하자.
-  loadGame() {
+  static loadGame() {
     // 파일이 비어있다면 높은 확률로 최초 실행 일 것이다.
-    if (this.utilityManager.FileEmpty()) {
+    if (GameManager.utilityManager.FileEmpty()) {
       // 디폴트 직원을 추가하자.
-      let savePlayer = this.entityManager.GetPlayers();
-      savePlayer.Enqueue(new Entity.Player(1, '1번직원', 10, 0.8, 2, 0));
-      savePlayer.Enqueue(new Entity.Player(1, '2번직원', 10, 0.8, 2, 0));
-      savePlayer.Enqueue(new Entity.Player(1, '3번직원', 10, 0.8, 2, 0));
-      savePlayer.Enqueue(new Entity.Player(1, '4번직원', 10, 0.8, 2, 0));
-      savePlayer.Enqueue(new Entity.Player(1, '5번직원', 10, 0.8, 2, 0));
+      let savePlayer = GameManager.entityManager.GetPlayers();
+      savePlayer.Enqueue(new Entity.Player(1, '1번직원', 10, 0.8, 2, 0, false));
+      savePlayer.Enqueue(new Entity.Player(1, '2번직원', 10, 0.8, 2, 0, false));
+      savePlayer.Enqueue(new Entity.Player(1, '3번직원', 10, 0.8, 2, 0, false));
+      savePlayer.Enqueue(new Entity.Player(1, '4번직원', 10, 0.8, 2, 0, false));
+      savePlayer.Enqueue(new Entity.Player(1, '5번직원', 10, 0.8, 2, 0, false));
 
       // 저장.
-      this.saveGame();
+      GameManager.saveGame();
 
       // 저장 하고 지우자
-      this.savedata = [];
+      GameManager.savedata = [];
     } else {
-      this.savedata = this.utilityManager.LoadFile();
-      let savePlayer = this.entityManager.GetPlayers();
+      GameManager.savedata = GameManager.utilityManager.LoadFile();
+      let savePlayer = GameManager.entityManager.GetPlayers();
 
       // 양식이 달라.
-      for (let i = 0; i < this.savedata.length; i++) {
+      for (let i = 0; i < GameManager.savedata.length; i++) {
         if (i === 0) {
-          GameManager.gameState.turnCount = this.savedata[i].turnCount;
-          GameManager.gameState.debt = this.savedata[i].debt;
-          GameManager.gameState.currentFunds = this.savedata[i].currentFunds;
+          GameManager.gameState.turnCount = GameManager.savedata[i].turnCount;
+          GameManager.gameState.debt = GameManager.savedata[i].debt;
+          GameManager.gameState.currentFunds = GameManager.savedata[i].currentFunds;
         } else {
           // 양식이 맞는지 확인
-          if (typeof this.savedata[i].name !== 'string' || typeof this.savedata[i].hp !== 'number' || typeof this.savedata[i].priority !== 'number' || typeof this.savedata[i].battleType !== 'number' || typeof this.savedata[i].party !== 'number') {
+          if (typeof GameManager.savedata[i].name !== 'string' || typeof GameManager.savedata[i].hp !== 'number' || typeof GameManager.savedata[i].priority !== 'number' || typeof GameManager.savedata[i].battleType !== 'number' || typeof GameManager.savedata[i].party !== 'number' || typeof GameManager.savedata[i].isDead !== 'boolean') {
             continue;
           }
           // 삽입
-          savePlayer.Enqueue(new Entity.Player(this.savedata[i].entitytype, this.savedata[i].name, this.savedata[i].hp, this.savedata[i].priority, this.savedata[i].battleType, this.savedata[i].party));
+          savePlayer.Enqueue(new Entity.Player(GameManager.savedata[i].entitytype, GameManager.savedata[i].name, GameManager.savedata[i].hp, GameManager.savedata[i].priority, GameManager.savedata[i].battleType, GameManager.savedata[i].party, GameManager.savedata[i].isDead));
         }
       }
 
       // 불러오고 지우자
-      this.savedata = [];
+      GameManager.savedata = [];
     }
   }
 
   // 세이브 파일 저장하자.
-  saveGame() {
+  static saveGame() {
     // 저장에 사용할 변수
 
     // 게임 로직의 필수 변수를 저장하자.
@@ -128,9 +154,9 @@ export default class GameManager {
       currentFunds: GameManager.gameState.currentFunds,
     };
 
-    this.savedata.push(result);
+    GameManager.savedata.push(result);
 
-    let savePlayer = this.entityManager.GetPlayers();
+    let savePlayer = GameManager.entityManager.GetPlayers();
 
     if (savePlayer.Size()) {
       let arrSize = savePlayer.Size();
@@ -144,31 +170,55 @@ export default class GameManager {
           priority: players[i].GetPriority(),
           battleType: players[i].GetBattleType(),
           party: players[i].GetParty(),
+          isDead: players[i].GetIsDead(),
         };
         // 임시로 배열에 추가한다.
-        this.savedata.push(result);
+        GameManager.savedata.push(result);
       }
     }
 
     // 한번에 저장
-    this.utilityManager.SaveFile(this.savedata);
+    GameManager.utilityManager.SaveFile(GameManager.savedata);
 
     // 저장 하고 지우자
-    this.savedata = [];
+    GameManager.savedata = [];
   }
 
   // 여기에 로직을 생성하자.
-  async Test() {
+  static async Test() {
     // 테스트용도 지울꺼다.
-    this.count++;
-    console.log('테스트다.');
-    console.log(`${this.turnCount}번 호출되었습니다.`);
-
-    let battleTest = BattleManager.getInstance();
+    
 
     // 파티, 몬스터 코드
-    await battleTest.Run(1, 1, 'Goblin');
+    let test = await GameManager.battleManager.Run(1, 1, 'Goblin');
+    //let test = await GameManager.battleManager.Run(2, 2, 'slime');
     //await battleTest.Run(1, 2, 'Slime');
+
+    for(let a of test) {
+      if(a === "@@@@@@"){
+        await CanvasManager.promptForKeyPress();
+        CanvasManager.deleteText();
+      } else {
+        CanvasManager.text_Maker(a, 100, {color: "green", style: "bold"});
+        await CanvasManager.delay(100);
+      }    
+    }
+
+    await CanvasManager.promptForKeyPress();
+    let test2 = await GameManager.battleManager.Run(2, 1, 'Goblin');
+
+    for(let a of test2) {
+      if(a === "@@@@@@"){
+        await CanvasManager.promptForKeyPress();
+        CanvasManager.deleteText();
+      } else {
+        CanvasManager.text_Maker(a, 100, {color: "green", style: "bold"});
+        await CanvasManager.delay(100);
+      }    
+    }
+
+
+    //@@@@@@
 
     //저장 테스트
     //let test = EntityManager.getInstance();

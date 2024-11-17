@@ -38,22 +38,6 @@ export class Scene {
     this.#sceneSettings.menus.push(menu);
   }
 
-  // 메뉴 실행하기. 이따 다른데 수정하면 바로 삭제.
-  async RunMenu(index) {
-    // 인덱스가 타입이 숫자형이 아니라면 바로 false 반환
-    if (typeof index !== 'number') {
-      return false;
-    }
-    // 메뉴가 있고 , 인덱스가 메뉴의 길이를 넘지 않는다면.
-    if (this.#sceneSettings.menus.length && this.#sceneSettings.menus.length > index) {
-      const result  =  await inquirer.prompt([this.#sceneSettings.menus[index]]);
-
-      // 개별로 쓰면 이럴 필요없는데. 여러군데에서 쓰니깐.. 동적으로 키이름 가져오기..
-      let nameKey  = Object.keys(result)[0]; 
-      return result[nameKey];
-    }
-    return false;
-  }
 
   // 현재 씬의 실행을 알 수 있는 함수.
   GetisScene() {

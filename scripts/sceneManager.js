@@ -16,7 +16,7 @@ export default class SceneManager {
   // private 생성자
   constructor() {
     if (SceneManager.#instance) {
-      throw new Error("Use GameManager.getInstance() 를 사용하여 인스턴스에 접근하세요.");
+      throw new Error("Use SceneManager.getInstance() 를 사용하여 인스턴스에 접근하세요.");
     }
 
     // 여기에 필요한 초기화 코드를 작성하세요

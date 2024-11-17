@@ -1,8 +1,8 @@
 import Entity from './Entity.js';
 
 export default class Goblin extends Entity {
-  constructor(entitytype, name, hp, priority, battleType, party) {
-    super(entitytype, name, hp, priority, battleType, party);
+  constructor(entitytype, name, hp, priority, battleType, party, isDead) {
+    super(entitytype, name, hp, priority, battleType, party, isDead);
     this.test = 0;
   }
 

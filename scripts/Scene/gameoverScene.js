@@ -18,7 +18,7 @@ export class GameOverScene extends Scene {
     while (this.GetisScene()) {
       // 메인 로직
       await this.Draw();
-      let menuValue = await this.RunMenu(0);
+      let menuValue = await CanvasManager.selectOption(this.GetSceneMenu(), 0);
 
       // 선택지 조건
       if (typeof menuValue === 'number' && menuValue === 1) {

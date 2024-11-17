@@ -33,16 +33,18 @@ class EntityManager {
   }
   
   // 몬스터 초기화.
-  InitializeMonsters(monsterCode, name, hp, priority, battleType, party, value = this.monsterLimit) {
+  InitializeMonsters(monsterCode, name, hp, priority, battleType, party, isDead, value = this.monsterLimit) {
+    this.monsterList.clear();
+    
     switch (monsterCode) {
       case 1:
         for (let i = 0; i < value; i++) {
-          this.monsterList.Enqueue(new Entity.Goblin(2 ,`${name}${i+1}`, hp, priority, battleType, party));
+          this.monsterList.Enqueue(new Entity.Goblin(2 ,`${name}${i+1}`, hp, priority, battleType, party, isDead));
         }
         break;
       case 2:
         for (let i = 0; i < value; i++) {
-          this.monsterList.Enqueue(new Entity.Slime(2 ,`${name}${i+1}`, hp, priority, battleType, party));
+          this.monsterList.Enqueue(new Entity.Slime(2 ,`${name}${i+1}`, hp, priority, battleType, party, isDead));
         }
         return true;
       default:

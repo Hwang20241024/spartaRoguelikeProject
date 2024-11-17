@@ -3,7 +3,7 @@ export default class Entity {
   #Information;
   #CombatStats;
 
-  constructor(entitytype, name, hp, priority, battleType, party) {
+  constructor(entitytype, name, hp, priority, battleType, party, isDead) {
     this.#Information = {
       entitytype: entitytype, // 타입 플레이어냐 몬스터냐 (디폴트: 0)
       name: name, // 이름
@@ -12,7 +12,7 @@ export default class Entity {
       isAttack: false, // 공격 하고 있는가?
       isDefense: false, // 방어 하고 있는가?
       isSkill: false, // 스킬 사용 하고 있는가?
-      isDead: false, // 죽었는가?
+      isDead: isDead, // 죽었는가?
       priority: priority, // 가중치.
       party: party, // 파티에 속해있는가 (디폴트 : 0 // 파티없음)
       target: '', // 전투중에 누굴 지목하였는가.

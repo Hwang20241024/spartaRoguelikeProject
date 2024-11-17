@@ -64,7 +64,7 @@ export class MainScene extends Scene {
       }
 
       // 테스트니깐 잊지 말고 수정하자
-      if (count === 5) {
+      if (GameManager.GetGameState().turnCount % 5 === 0) {
         this.repaymentScene.SetisScene(true);
         await this.repaymentScene.Run();
 

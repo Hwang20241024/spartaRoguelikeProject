@@ -1,5 +1,6 @@
 import UtilityManager from './UtilityManager.js';
 import EntityManager from './EntityManager.js';
+import CanvasManager from './CanvasManager.js';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 
@@ -22,7 +23,9 @@ export default class BattleManager {
     this.copyMonsters = [];
     this.isBattle = true;
     this.isSkip = false;
-    this.isDamages = 3;
+    this.isDamages = 5;
+
+    this.battleLog = [];
   }
 
   // 인스턴스를 생성하거나 반환하는 static 메서드
@@ -35,6 +38,9 @@ export default class BattleManager {
 
   // 배틀 시작
   async Run(partyNumber, monsterCode, mosterName) {
+    // 0. 전투 기록할 변수
+    this.battleLog = []; // 시작전에 초기화.
+
     // 1. 배틀 초기 세팅.
     await this.BattleSetting(partyNumber, monsterCode, mosterName);
 
@@ -45,48 +51,47 @@ export default class BattleManager {
       this.setTarget(); // 3. 타겟을 정하자.
 
       if (!this.battlePriority.peek().GetIsDead()) {
-        console.log(
-          chalk.red(
-            `${this.battlePriority.peek().GetName()}님의 차례 (타겟: ${this.battlePriority.peek().GetTarget()} ) `,
-          ),
-        );
-        
+        let str = '';
+
+        for (let value of this.battlePriority.GetQueue()) {
+          str += '[' + value.GetName() + ']';
+        }
+        this.Log(str);
+        this.Log(`[${this.battlePriority.peek().GetName()}] 행동을 시작합니다.`);
       }
       // 2 - 4. 순위와 행동과 타겟을 결정했으면 이제 전투 시작.
       this.startAction();
 
       if (!this.battlePriority.peek().GetIsDead()) {
-        console.log(
-          chalk.green(`${this.battlePriority.GetQueue()[0].GetName()}님이 차례는 끝났습니다..`),
-        );
+        this.Log(`[${this.battlePriority.peek().GetName()}] 행동을 종료합니다.`);
+        this.Log(`@@@@@@`);
       }
 
       this.clearTarget(); // 2. 타겟을 클리어 하자.
       // 2 - 5. 우선 순위 변경
       this.removePriority();
 
-      // 이건 테스트로그임 나중에 까먹지 말고 지우자.
-      // if (this.battlePriority.Size() !== 0) {
-      //   console.log(chalk.red(`현재 남아있는 엔티티는 ${this.battlePriority.Size()} 입니다.`));
-      //   console.log(chalk.red(`플레이어 : ${this.copyPlayers.length} 생존`));
-      //   console.log(chalk.red(`몬스터 : ${this.copyMonsters.length} 생존`));
-      // }
-
       // 둘중 한쪽이 전멸하면 ..
       if (this.copyPlayers.length === 0 || this.copyMonsters.length === 0) {
         this.isBattle = !this.isBattle;
       }
-      this.test2();
-      await this.test();
     }
 
-    console.log(chalk.red(`게임이 끝났습니다.`));
-    await this.test();
+    this.Log(`[${partyNumber}파티 전투 종료.]`);
+
+    if (this.copyPlayers.length === 0) {
+      this.Log(`[${partyNumber}파티 패배.]`);
+    } else {
+      this.Log(`[${partyNumber}파티 승리.]`);
+    }
 
     // 전투가 끝난다면 초기화해주자.
     this.copyPlayers = [];
     this.copyMonsters = [];
     this.isBattle = !this.isBattle;
+
+    // 전투 데이터를 리턴.
+    return this.battleLog;
   }
 
   // 배틀 초기 세팅.
@@ -95,12 +100,7 @@ export default class BattleManager {
     let players = this.entityManager.GetPlayers();
     let monsters = this.entityManager.GetMonsters();
 
-    // 플레이어와 몬스터를 셋팅하자.
-    //this.entityManager.InitializationPlayers();
-
-    // monsterCode, name, hp, priority, battleType, party // 렌덤으로 돌리는거 만들어야함.
-    this.entityManager.InitializeMonsters(monsterCode, mosterName, 5, 0.8, 3, 1);
-    
+    this.entityManager.InitializeMonsters(monsterCode, mosterName, 5, 0.8, 3, 1, false);
 
     // 플레이어와 몬스터를 복사하자. (※얕은복사)
     if (players.Size()) {
@@ -115,7 +115,7 @@ export default class BattleManager {
       }
     }
 
-    // 파티가 아닌 인원들을 제외하자. (파티가 아닌 인원들은 대기중인것이다.)
+    // 파티가 아닌 인원들을 제외하자.
     this.copyPlayers = this.copyPlayers.filter((value) => value.GetParty() !== 0);
 
     // 진짜 전투를 하는 파티를 구한다.
@@ -141,7 +141,7 @@ export default class BattleManager {
   }
 
   // 우선순위 설정.
-  GeneratePriority() {
+  async GeneratePriority() {
     // 우선순위 사이즈가 0이 아닐경우.
     if (this.battlePriority.Size() !== 0) {
       for (let value of this.battlePriority.GetQueue()) {
@@ -166,7 +166,7 @@ export default class BattleManager {
   }
 
   // 엔티티의 행동결정.
-  decideAction() {
+  async decideAction() {
     if (this.battlePriority.Size() !== 0) {
       let actionWeights = { attack: 0, defend: 0, skill: 0 };
 
@@ -181,17 +181,17 @@ export default class BattleManager {
           case 1: //  'attack'
             actionWeights.attack = 0.1; // 0.7
             actionWeights.defend = 0.1; // 0.2
-            actionWeights.skill = 0.9;  // 0.1
+            actionWeights.skill = 0.8; // 0.1
             break;
           case 2: //  'defend'
-            actionWeights.attack = 0.2; // 0.2
+            actionWeights.attack = 0.1; // 0.2
             actionWeights.defend = 0.2; // 0.7
-            actionWeights.skill = 0.8;  // 0.1
+            actionWeights.skill = 0.7; // 0.1
             break;
           case 3: // 'skill'
             actionWeights.attack = 0.1; // 0.2
-            actionWeights.defend = 0.1; // 0.2
-            actionWeights.skill = 0.8; // 0.6
+            actionWeights.defend = 0.2; // 0.2
+            actionWeights.skill = 0.6; // 0.6
             break;
         }
 
@@ -213,7 +213,7 @@ export default class BattleManager {
   }
 
   // 엔티티의 행동삭제
-  manageAction(value) {
+  async manageAction(value) {
     if (value.GetAttack()) {
       value.SetAttack();
     } else if (value.GetDefense()) {
@@ -225,7 +225,7 @@ export default class BattleManager {
   }
 
   // 엔티티의 타겟설정.
-  setTarget() {
+  async setTarget() {
     // 1. 우선순위 큐를 한바퀴 돌린다.
     for (let value of this.battlePriority.GetQueue()) {
       // 본인이 죽으면 넘기자.
@@ -257,7 +257,7 @@ export default class BattleManager {
   }
 
   // 엔티티의 타겟헤제.
-  clearTarget() {
+  async clearTarget() {
     // 로직 요약.
     // #0. 현제 베틀메니저 로직상 우선순위 큐 순서대로 진행된다.
     // #1. 우선순위상 1등이 보고 있는 타겟 삭제.
@@ -283,7 +283,7 @@ export default class BattleManager {
       let temp = capybattlePriority.find((item) => item.GetName() === targetName);
 
       // 이건테스트
-      if(temp === null || temp === undefined){
+      if (temp === null || temp === undefined) {
         // 느낌상 네임은 가지고 있는데 이미 타겟이없다면? 거기서 에러인거같은데
         return null;
       }
@@ -306,7 +306,7 @@ export default class BattleManager {
   }
 
   // 우선순위 삭제.
-  removePriority() {
+  async removePriority() {
     if (this.battlePriority.Size() !== 0) {
       // 체력이 0이아니라면 삭제하고 뒤로 추가
       if (!this.battlePriority.peek().GetIsDead()) {
@@ -325,9 +325,7 @@ export default class BattleManager {
   }
 
   // 엔티티의 엑션 시작.
-  startAction() {
-   
-
+  async startAction() {
     // 우선순위 복사.
     let capybattlePriority = this.battlePriority.GetQueue();
     let currentEntity = this.battlePriority.peek();
@@ -337,56 +335,54 @@ export default class BattleManager {
     let target = capybattlePriority.find((item) => item.GetName() === targetName);
 
     // 일단 내가 죽으면 안됨...
-    if (currentEntity.GetIsDead()){
+    if (currentEntity.GetIsDead()) {
       console.clear();
       return null;
     }
 
-    // 혹시모르니깐 
-    if(target === null || target === undefined){
+    // 혹시모르니깐
+    if (target === null || target === undefined) {
       console.clear();
-      console.log("뭔가 문제 생김");
       return null;
     }
 
     // 본인의 상태 선택.
     if (currentEntity.GetAttack()) {
-      console.log(`${currentEntity.GetName()}님이 공격을 준비합니다.`);
+      this.Log(`${currentEntity.GetName()}님이 공격을 준비합니다.`);
       if (!target.GetIsDead()) {
         //상대방이 방어중이라면.
         if (target.GetDefense()) {
-          console.log(`${targetName}님이 방어를 준비합니다.`);
-          console.log(`${currentEntity.GetName()}님이 ${targetName}을 공격합니다.`);
-          console.log(`${targetName}님이 ${currentEntity.GetName()}의 공격을 막았습니다.`);
+          this.Log(`${targetName}님이 방어를 준비합니다.`);
+          this.Log(`${currentEntity.GetName()}님이 ${targetName}을 공격합니다.`);
+          this.Log(`${targetName}님이 ${currentEntity.GetName()}의 공격을 막았습니다.`);
           target.SetDefense(); // 타겟 방어 해제.
           currentEntity.SetAttack(); // 본인 공격 헤제.
         } else {
           // 10을 준건 테스트 때문이다.
           target.SetHp(target.GetHp() - this.isDamages);
           currentEntity.SetAttack(); // 본인 공격 헤제.
-          console.log(`${currentEntity.GetName()}님이 ${targetName}을 공격합니다.`);
-          console.log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
-          console.log(`${targetName}님은 데미지를 받았습니다. (남은체력 : ${target.GetHp()}).`);
+          this.Log(`${currentEntity.GetName()}님이 ${targetName}을 공격합니다.`);
+          this.Log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
+          this.Log(`${targetName}님은 데미지를 받았습니다. (남은체력 : ${Math.max(0, target.GetHp())}).`);
         }
 
         // 타겟의 체력이 0이 되었다면..?
         if (target.GetHp() <= 0) {
           target.SetIsDead();
-          console.log(`${targetName}님이 죽었습니다.. (남은체력 : ${target.GetHp()}).`);
-          console.log(`${target.GetIsDead()}).`);
+          this.Log(`${targetName}님이 죽었습니다. (남은체력 : ${Math.max(0, target.GetHp())}).`);
         }
       } else {
-        console.log(`${targetName}님이 남은 체력 (남은체력 : ${target.GetHp()}).`);
-        console.log(`${targetName}님이 이미 죽었습니다.`);
-        console.log(`${currentEntity.GetName()}님은 공격을 하지못했습니다.`);
+        this.Log(`${targetName}님이 이미 죽었습니다..`);
+        this.Log(`${currentEntity.GetName()}님은 공격을 하지못했습니다.`);
+
         currentEntity.SetAttack();
       }
     } else if (currentEntity.GetDefense()) {
-      console.log(`${currentEntity.GetName()}님이 방어를 준비합니다.`);
+      this.Log(`${currentEntity.GetName()}님이 방어를 준비합니다.`);
 
       if (target.GetIsDead()) {
-        console.log(`${targetName}님이 이미 죽었습니다.`);
-        console.log(`${currentEntity.GetName()}님은 방어를 하지못했습니다.`);
+        this.Log(`${targetName}님이 이미 죽었습니다.`);
+        this.Log(`${currentEntity.GetName()}님은 방어를 하지못했습니다.`);
         currentEntity.SetDefense();
       }
     } else if (currentEntity.GetSkill()) {
@@ -395,152 +391,156 @@ export default class BattleManager {
   }
 
   // 스킬 세팅.
-  skillSatting(type, currentEntity, target) {
+  async skillSatting(type, currentEntity, target) {
     let temp = Math.floor(Math.random() * 2) + 1;
 
     if (type !== 3) {
       if (temp === 1) {
-        console.log(`${currentEntity.GetName()}님이 더블 어택을 사용합니다.`);
+        this.Log(`${currentEntity.GetName()}님이 더블 어택을 사용합니다.`);
 
         if (!target.GetIsDead()) {
           // 더블 어택 //
           if (target.GetDefense()) {
-            console.log(`${target.GetName()}님이 방어를 준비합니다.`);
-            console.log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
-            console.log(`${target.GetName()}님이 ${currentEntity.GetName()}의 공격을 막았습니다.`);
+            this.Log(`${target.GetName()}님이 방어를 준비합니다.`);
+            this.Log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
+            this.Log(`${target.GetName()}님이 ${currentEntity.GetName()}의 공격을 막았습니다.`);
+
             target.SetDefense(); // 타겟 방어 해제.
 
-            console.log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
-            console.log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
+            this.Log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
+            this.Log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
+
             target.SetHp(target.GetHp() - this.isDamages);
-            console.log(
-              `${target.GetName()}님은 데미지를 받았습니다. (남은체력 : ${target.GetHp()}).`,
-            );
+
+            this.Log(`${target.GetName()}님은 데미지를 받았습니다. (남은체력 : ${Math.max(0, target.GetHp())}).`);
+
             currentEntity.SetSkill(); // 본인 공격 헤제.
           } else {
-            console.log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
-            console.log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
-            target.SetHp(target.GetHp() - this.isDamages);
-            console.log(
-              `${target.GetName()}님은 데미지를 받았습니다. (남은체력 : ${target.GetHp()}).`,
-            );
+            this.Log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
+            this.Log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
 
-            console.log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
-            console.log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
             target.SetHp(target.GetHp() - this.isDamages);
-            console.log(
-              `${target.GetName()}님은 데미지를 받았습니다. (남은체력 : ${target.GetHp()}).`,
-            );
+
+            this.Log(`${target.GetName()}님은 데미지를 받았습니다. (남은체력 : ${Math.max(0, target.GetHp())}).`);
+
+            this.Log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
+            this.Log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
+
+            target.SetHp(target.GetHp() - this.isDamages);
+
+            this.Log(`${target.GetName()}님은 데미지를 받았습니다. (남은체력 : ${Math.max(0, target.GetHp())}).`);
+
             currentEntity.SetSkill(); // 본인 공격 헤제.
           }
 
           // 타겟의 체력이 0이 되었다면..?
           if (target.GetHp() <= 0) {
             target.SetIsDead();
-            console.log(`${target.GetName()}님이 죽었습니다.. (남은체력 : ${target.GetHp()}).`);
+            this.Log(`${target.GetName()}님이 죽었습니다.. (남은체력 : ${Math.max(0, target.GetHp())}).`);
           }
         } else {
-          console.log(`${target.GetName()}님이 이미 죽었습니다.`);
-          console.log(`${currentEntity.GetName()}님은 스킬을 사용하지 못했습니다.`);
+          this.Log(`${target.GetName()}님이 이미 죽었습니다.`);
+          this.Log(`${currentEntity.GetName()}님은 스킬을 사용하지 못했습니다.`);
+
           currentEntity.SetSkill(); // 본인 공격 헤제.
         }
       } else {
         // 파워 어택 //
-        console.log(`${currentEntity.GetName()}님이 파워 어택을 사용합니다.`);
-        console.log(`${currentEntity.GetName()}님이 강력한 일격을 준비합니다..`);
+        this.Log(`${currentEntity.GetName()}님이 파워 어택을 사용합니다.`);
+        this.Log(`${currentEntity.GetName()}님이 강력한 일격을 준비합니다..`);
 
         if (!target.GetIsDead()) {
           if (target.GetDefense()) {
-            console.log(`${target.GetName()}님이 방어를 준비합니다.`);
-            console.log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
-            console.log(`${target.GetName()}님이 ${currentEntity.GetName()}의 공격을 막았습니다.`);
+            this.Log(`${target.GetName()}님이 방어를 준비합니다.`);
+            this.Log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
+            this.Log(`${target.GetName()}님이 ${currentEntity.GetName()}의 공격을 막았습니다.`);
+
             target.SetDefense(); // 타겟 방어 해제.
             currentEntity.SetSkill(); // 본인 공격 헤제.
           } else {
-            console.log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
-            console.log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
+            this.Log(`${currentEntity.GetName()}님이 ${target.GetName()}을 공격합니다.`);
+            this.Log(`${currentEntity.GetName()}님이 공격에 성공습니다.`);
+
             target.SetHp(-target.GetHp());
-            console.log(`${target.GetName()}님은 즉사 했습니다. (남은체력 : ${target.GetHp()}).`);
+
+            this.Log(`${target.GetName()}님은 즉사 했습니다. (남은체력 : ${Math.max(0, target.GetHp())}).`);
 
             // 타겟의 체력이 0이 되었다면..?
             if (target.GetHp() <= 0) {
               target.SetIsDead();
-              console.log(`${target.GetName()}님이 죽었습니다.. (남은체력 : ${target.GetHp()}).`);
             }
           }
         } else {
-          console.log(`${target.GetName()}님이 이미 죽었습니다.`);
-          console.log(`${currentEntity.GetName()}님은 스킬을 사용하지 못했습니다.`);
+          this.Log(`${target.GetName()}님이 이미 죽었습니다.`);
+          this.Log(`${currentEntity.GetName()}님은 스킬을 사용하지 못했습니다.`);
+
           currentEntity.SetSkill(); // 본인 공격 헤제.
         }
       }
     } else {
       while (true) {
-        // 배열의 길이가 없다면 리턴하자 
-        if(this.copyMonsters.length <= 0 || this.copyPlayers.length <= 0){
+        // 배열의 길이가 없다면 리턴하자
+        if (this.copyMonsters.length <= 0 && this.copyPlayers.length <= 0) {
           return null;
         }
+        ///
+        let teamTargetIndex01 = Math.floor(Math.random() * this.copyPlayers.length);
+        let teamTargetIndex02 = Math.floor(Math.random() * this.copyMonsters.length);
 
+        if (currentEntity.GetEntitytype() === 1) {
 
-        let teamTargetIndex = Math.floor(Math.random() * this.copyMonsters.length);
-
-
-        if(currentEntity.GetEntitytype() === 1){
+          
 
           // 코드 수정해야함.
-          if(this.copyPlayers[teamTargetIndex].GetName() === currentEntity.GetName()) {
-            if(this.copyPlayers.length === 1) {
+          if (this.copyPlayers[teamTargetIndex01].GetName() === currentEntity.GetName()) {
+            if (this.copyPlayers.length === 1) {
               break;
             }
           }
 
-          
-          if (this.copyPlayers[teamTargetIndex].GetName() !== currentEntity.GetName()) {
-            console.log(`${currentEntity.GetName()}님이 힐을 사용을 준비합니다...`);
-  
-            if (!this.copyPlayers[teamTargetIndex].GetIsDead()) {
-              this.copyPlayers[teamTargetIndex].SetHp(this.copyPlayers[teamTargetIndex].GetHp() + 1);
-              
-              console.log(
-                `${currentEntity.GetName()}님이 ${this.copyPlayers[teamTargetIndex].GetName()}에게 힐을 사용하였습니다. `,
-              );
-              console.log(
-                `${this.copyPlayers[teamTargetIndex].GetName()}} 회복 하였습니다.(남은체력 : ${this.copyPlayers[teamTargetIndex].GetHp()})`,
-              );
+          if (this.copyPlayers[teamTargetIndex01].GetName() !== currentEntity.GetName()) {
+            this.Log(`${currentEntity.GetName()}님이 힐을 사용을 준비합니다...`);
+
+            if (!this.copyPlayers[teamTargetIndex01].GetIsDead()) {
+              this.copyPlayers[teamTargetIndex01].SetHp(this.copyPlayers[teamTargetIndex01].GetHp() + 1);
+
+              this.Log(`${currentEntity.GetName()}님이 ${this.copyPlayers[teamTargetIndex01].GetName()}에게 힐을 사용하였습니다. `);
+              this.Log(`${this.copyPlayers[teamTargetIndex01].GetName()}} 회복 하였습니다.(남은체력 : ${this.copyPlayers[teamTargetIndex01].GetHp()})`);
+
               currentEntity.SetSkill(); // 본인 공격 헤제.
             } else {
-              console.log(`${this.copyPlayers[teamTargetIndex].GetName()}님이 이미 죽었습니다.`);
-              console.log(`${currentEntity.GetName()}님은 스킬을 사용하지 못했습니다.`);
+              this.Log(`${this.copyPlayers[teamTargetIndex01].GetName()}님이 이미 죽었습니다.`);
+              this.Log(`${currentEntity.GetName()}님은 스킬을 사용하지 못했습니다.`);
+
               currentEntity.SetSkill(); // 본인 공격 헤제.
             }
             break;
           }
           // 남은놈이 자기밖에 없는데 본인 은 안되서..
         } else if (currentEntity.GetEntitytype() === 2) {
-
           // 코드 수정해야함.
-          if(this.copyMonsters[teamTargetIndex].GetName() === currentEntity.GetName()) {
-            if(this.copyMonsters.length === 1) {
+          if (this.copyMonsters[teamTargetIndex02].GetName() === currentEntity.GetName()) {
+            if (this.copyMonsters.length === 1) {
               break;
             }
           }
 
-          if (this.copyMonsters[teamTargetIndex].GetName() !== currentEntity.GetName()) {
-            console.log(`${currentEntity.GetName()}님이 힐을 사용을 준비합니다...`);
-  
-            if (!this.copyMonsters[teamTargetIndex].GetIsDead()) {
-              this.copyMonsters[teamTargetIndex].SetHp(this.copyMonsters[teamTargetIndex].GetHp() + 1);
-              
-              console.log(
-                `${currentEntity.GetName()}님이 ${this.copyMonsters[teamTargetIndex].GetName()}에게 힐을 사용하였습니다. `,
-              );
-              console.log(
-                `${this.copyMonsters[teamTargetIndex].GetName()}} 회복 하였습니다.(남은체력 : ${this.copyMonsters[teamTargetIndex].GetHp()})`,
-              );
+          if (this.copyMonsters[teamTargetIndex02].GetName() !== currentEntity.GetName()) {
+            this.Log(`${currentEntity.GetName()}님이 힐을 사용을 준비합니다...`);
+            // console.log(`${currentEntity.GetName()}님이 힐을 사용을 준비합니다...`);
+
+            if (!this.copyMonsters[teamTargetIndex02].GetIsDead()) {
+              this.copyMonsters[teamTargetIndex02].SetHp(this.copyMonsters[teamTargetIndex02].GetHp() + 1);
+
+              this.Log(`${currentEntity.GetName()}님이 ${this.copyMonsters[teamTargetIndex02].GetName()}에게 힐을 사용하였습니다. `);
+              this.Log(`${this.copyMonsters[teamTargetIndex02].GetName()}} 회복 하였습니다.(남은체력 : ${this.copyMonsters[teamTargetIndex02].GetHp()})`);
+
               currentEntity.SetSkill(); // 본인 공격 헤제.
             } else {
-              console.log(`${this.copyMonsters[teamTargetIndex].GetName()}님이 이미 죽었습니다.`);
-              console.log(`${currentEntity.GetName()}님은 스킬을 사용하지 못했습니다.`);
+              this.Log(`${this.copyMonsters[teamTargetIndex02].GetName()}님이 이미 죽었습니다.`);
+              this.Log(`${currentEntity.GetName()}님은 스킬을 사용하지 못했습니다.`);
+
+              
               currentEntity.SetSkill(); // 본인 공격 헤제.
             }
             break;
@@ -550,43 +550,8 @@ export default class BattleManager {
     }
   }
 
-  async test() {
-    const answers = await inquirer.prompt([
-      {
-        type: 'checkbox',
-        name: 'colors',
-        message: '',
-        choices: ['Red'],
-        default: ['Blue', 'Green'], // 기본 선택값
-      },
-    ]);
-    console.clear();
-  }
-
-  test2() {
-    // 현재 모든 상태 로그로 찍자
-    let str = '플레이어 :';
-
-    for (let value of this.copyPlayers) {
-      str += '[' + value.GetName() + ']';
-    }
-
-    console.log(chalk.blue(str + '(사이즈 : ' + this.copyPlayers.length + ' )'));
-
-    str = '몬스터   :';
-
-    for (let value of this.copyMonsters) {
-      str += '[' + value.GetName() + ']';
-    }
-
-    console.log(chalk.blue(str + '(사이즈 : ' + this.copyMonsters.length + ' )'));
-
-    str = '우선순위 :';
-
-    for (let value of this.battlePriority.GetQueue()) {
-      str += '[' + value.GetName() + ']';
-    }
-
-    console.log(chalk.blue(str + '(사이즈 : ' + this.battlePriority.Size() + ' )'));
+  // 로그기억용.
+  async Log(str) {
+    this.battleLog.push(str);
   }
 }
