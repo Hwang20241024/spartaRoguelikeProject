@@ -34,7 +34,7 @@ export default class GameManager {
     interestDate: 5, // 이자 내야하는날.
     debt: 200000000, // 현재 가진 빛
     interest: 20000000, // 이자
-    currentFunds: 100000000, // 현재가진 머니
+    currentFunds: 10000000, // 현재가진 머니
     treatmentCost: 1000000, // 기본치료비
     employeeCost:1000000 ,  // 직원채용 코스트
     revenue: 2000000, // 기본 수입
@@ -144,10 +144,6 @@ export default class GameManager {
 
   // 세이브 파일 저장하자.
   static saveGame() {
-    // 저장에 사용할 변수
-
-    // 게임 로직의 필수 변수를 저장하자.
-    // 턴 , 남은 빚, 현재돈
     let result = {
       turnCount: GameManager.gameState.turnCount,
       debt: GameManager.gameState.debt,
@@ -184,46 +180,4 @@ export default class GameManager {
     GameManager.savedata = [];
   }
 
-  // 여기에 로직을 생성하자.
-  static async Test() {
-    // 테스트용도 지울꺼다.
-    
-
-    // 파티, 몬스터 코드
-    let test = await GameManager.battleManager.Run(1, 1, 'Goblin');
-    //let test = await GameManager.battleManager.Run(2, 2, 'slime');
-    //await battleTest.Run(1, 2, 'Slime');
-
-    for(let a of test) {
-      if(a === "@@@@@@"){
-        await CanvasManager.promptForKeyPress();
-        CanvasManager.deleteText();
-      } else {
-        CanvasManager.text_Maker(a, 100, {color: "green", style: "bold"});
-        await CanvasManager.delay(100);
-      }    
-    }
-
-    await CanvasManager.promptForKeyPress();
-    let test2 = await GameManager.battleManager.Run(2, 1, 'Goblin');
-
-    for(let a of test2) {
-      if(a === "@@@@@@"){
-        await CanvasManager.promptForKeyPress();
-        CanvasManager.deleteText();
-      } else {
-        CanvasManager.text_Maker(a, 100, {color: "green", style: "bold"});
-        await CanvasManager.delay(100);
-      }    
-    }
-
-
-    //@@@@@@
-
-    //저장 테스트
-    //let test = EntityManager.getInstance();
-    //test.InitializationPlayer();
-    //test.PlayerSave();
-    //test.PlayerLoad();
-  }
 }

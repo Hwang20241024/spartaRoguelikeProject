@@ -3,7 +3,6 @@ import EntityManager from '../../EntityManager.js';
 import GameManager from '../../GameManager.js';
 import BattleManager from '../../BattleManager.js';
 import CanvasManager from '../../CanvasManager.js';
-import inquirer from 'inquirer';
 
 // 작업 지시 씬.
 export class TaskManager extends Scene {

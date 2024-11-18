@@ -1,8 +1,6 @@
 import UtilityManager from './UtilityManager.js';
 import EntityManager from './EntityManager.js';
-import CanvasManager from './CanvasManager.js';
-import inquirer from 'inquirer';
-import chalk from 'chalk';
+
 
 export default class BattleManager {
   // 클래스 인스턴스를 저장할 private static 변수
@@ -47,9 +45,10 @@ export default class BattleManager {
     // 2. 메인 루프
     while (this.isBattle) {
       // 로직을 다시 보자
-      this.decideAction(); // 1. 현재 행동을 정하자.
-      this.setTarget(); // 3. 타겟을 정하자.
+      this.decideAction(); //  현재 행동을 정하자.
+      this.setTarget();    //  타겟을 정하자.
 
+      // 행동 시작 알림.
       if (!this.battlePriority.peek().GetIsDead()) {
         let str = '';
 
@@ -59,16 +58,19 @@ export default class BattleManager {
         this.Log(str);
         this.Log(`[${this.battlePriority.peek().GetName()}] 행동을 시작합니다.`);
       }
-      // 2 - 4. 순위와 행동과 타겟을 결정했으면 이제 전투 시작.
+
+      // 전투시작.
       this.startAction();
 
+      // 행동 종료 알림.
       if (!this.battlePriority.peek().GetIsDead()) {
         this.Log(`[${this.battlePriority.peek().GetName()}] 행동을 종료합니다.`);
         this.Log(`@@@@@@`);
       }
 
-      this.clearTarget(); // 2. 타겟을 클리어 하자.
-      // 2 - 5. 우선 순위 변경
+      // 타겟 지우기 
+      this.clearTarget(); 
+      // 우선 순위 변경.
       this.removePriority();
 
       // 둘중 한쪽이 전멸하면 ..
@@ -264,10 +266,6 @@ export default class BattleManager {
     // #2. 만약에 우선순위에 있는 다른 엔티티가 해당 타겟을 바라보고 있다면 삭제.
     // #3. 카피한 몬스터와 플레이어 카피 배열에서 해당 이름을 가지고 있는 배열 삭제.
 
-    // 조건문에 노랑줄 떳다. 이유는 간결하게 하라고 알아보니위에처럼 ? 하는 방법이있다.
-    // null 또는 undefined일 경우 undefined를 반환한다고 한다..
-    // (그냥 있다길레 써밨다. 근데 굳이? 라는 느낌이 더든다.)
-
     // 0. 타겟 지웠는지 판단하는 변수
     let isClearTarget = false;
 
@@ -278,13 +276,11 @@ export default class BattleManager {
     let targetName = capybattlePriority[0].GetTarget();
 
     if (targetName !== '') {
-      // 여기수정 하자..
       // 3. 타겟 찾기.
       let temp = capybattlePriority.find((item) => item.GetName() === targetName);
 
-      // 이건테스트
+      
       if (temp === null || temp === undefined) {
-        // 느낌상 네임은 가지고 있는데 이미 타겟이없다면? 거기서 에러인거같은데
         return null;
       }
 
@@ -312,9 +308,8 @@ export default class BattleManager {
       if (!this.battlePriority.peek().GetIsDead()) {
         // 현재 상태를 뒤로 보내자.
         let temp = this.battlePriority.Dequeue();
-        // 여기는 다시 보자.반드시!!!
         this.manageAction(temp);
-        //
+
         this.battlePriority.Enqueue(temp);
       } else {
         this.battlePriority.Dequeue();
@@ -340,7 +335,7 @@ export default class BattleManager {
       return null;
     }
 
-    // 혹시모르니깐
+    // 혹시 모르니깐
     if (target === null || target === undefined) {
       console.clear();
       return null;

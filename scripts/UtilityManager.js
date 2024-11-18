@@ -12,7 +12,6 @@ export default class UtilityManager {
       throw new Error("Use UtilityManager.getInstance() 를 사용하여 인스턴스에 접근하세요.");
     }
 
-    // 우선순위 큐. (우선순위 사용할 곳있다면 계속추가.)
     this.#PriorityQueue = {
       "BattlePriority" : new Utils.Queue(),
       "Monster" : new Utils.Queue(),
@@ -31,26 +30,27 @@ export default class UtilityManager {
     return UtilityManager.#instance;
   }
 
-  // 우선순위 큐를 가져온다.
+  // 큐 가져오기.
   GetPriorityQueue(str){
     return this.#PriorityQueue[str];
   }
-
+  // 파일 저장.
   LoadFile() {
-    // 파일을 불러오자 어차피 새로만들어~ .    
+    
     return this.saveLoad.readFile();  
   }
 
+  // 파일 저장
   SaveFile(value) {
     this.saveLoad.saveFile(value);
   }
 
+  // 파일 비어있나?
   FileEmpty() {
-    // 파일은 있는데 비어있냐?
     return this.saveLoad.isFileEmpty();
   }
 
-  // 파일 삭제
+  // 파일 내용 지우기
   FileClear() {
     this.saveLoad.clearFile();
   }

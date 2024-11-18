@@ -42,7 +42,7 @@ export default class Queue {
     return this.arr;
   }
 
-  // 큐 전체 요소 복구하는용도.(모르겠다. 이러면 큐 의미 없는데.....)
+  // 큐 전체 요소 복구하는용도.
   SrestorationQueue(arr) {
     this.arr = arr;
   }

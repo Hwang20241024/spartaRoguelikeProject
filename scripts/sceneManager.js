@@ -1,13 +1,8 @@
 // Scene 폴더에있는 모든 js 파일 임포트.(실패.)
 //import * as Scenes from './Scene';  // 
 
-// 해결방법 모든 임포트 정보를 가지고 있는 index생성.
 import { Scenes } from './Scene/index.js'; 
 
-import EntityManager from './EntityManager.js';
-
-
-// 씬들을 관리한 메니저다.
 export default class SceneManager {
   // privet
   static #instance = null; // 싱글턴 전용 필드.
@@ -51,7 +46,7 @@ export default class SceneManager {
     gameOverScene.Setting();
   }
 
-
+  // 실행
   async Run() {
     const { titleScene, mainScene, gameOverScene } = this.#sceneManagerSettings;
 
@@ -60,26 +55,27 @@ export default class SceneManager {
       await titleScene.Run();
     }
 
-    // 이거 다른 씬있으면 추가해야함.
+    // 메인 씬 실행 여부
     if(!titleScene.GetisScene() && !mainScene.GetisScene()) {
       mainScene.SetisScene(true);
     }
 
-    // 메인 실행.
+    // 메인 씬
     if(mainScene.GetisScene()){
       await mainScene.Run();
     }
 
-    // 테스트용도 니깐 나중에 지우자.
+    // 게임오버 씬 실행 여부
     if(!titleScene.GetisScene() && !mainScene.GetisScene()) {
       gameOverScene.SetisScene(true);
     }
-
+    
+    // 게임 오버 씬 실행.
     if(gameOverScene.GetisScene()){
       await gameOverScene.Run();
     }
 
-    //테스트 용도니깐 지우자
+    // 타이틀 씬 다시 가는 용도
     if(!titleScene.GetisScene() && !mainScene.GetisScene() && !gameOverScene.GetisScene()) {
       titleScene.SetisScene(true);
     }

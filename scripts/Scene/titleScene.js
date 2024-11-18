@@ -8,10 +8,11 @@ export class TitleScene extends Scene {
     this.isTitleScene = true;
 
     // 여기서만 쓰는 변수
-    this.SetLoadingSpeed(200);
+    this.SetLoadingSpeed(1000);
     this.SetTextSpeed(10);
   }
 
+  // 그리기
   async Draw() {
     let loadingSpeed = this.GetLoadingSpeed();
     let textSpeed = this.GetTextSpeed();
@@ -67,10 +68,13 @@ export class TitleScene extends Scene {
     await CanvasManager.delay(200);
   }
 
+  // 시작.
   async Run() {
-    // Scene는 개별적으로 돌아간다.
     while (this.GetisScene()) {
+      // 그리다.
       await this.Draw();
+
+      // 선택지
       let menuValue = await CanvasManager.selectOption(this.GetSceneMenu(), 0);
 
       // 게임시작.

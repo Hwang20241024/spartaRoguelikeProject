@@ -26,13 +26,8 @@ export class MainScene extends Scene {
   }
 
   async Run() {
-    // 이거 테스트다 지워야한다.
-    let count = 0;
     // 루프 시작.
     while (this.GetisScene()) {
-      // 테스트니깐 잊지말고 지우자
-      count++;
-
       // 메인 로직
       await this.Draw();
       let menuValue = await CanvasManager.selectOption(this.GetSceneMenu(), 0);
@@ -70,8 +65,6 @@ export class MainScene extends Scene {
 
         if (this.repaymentScene.GetisPriceToPay()) {
           this.SetisScene(false);
-        } else {
-          count = 0;
         }
       }
     }
@@ -79,7 +72,7 @@ export class MainScene extends Scene {
 
   // 타이틀 세팅.
   Setting() {
-    // 서브 씬 수정하자..
+    // 서브 씬 
     this.taskManager.Setting(); // 작업지시 Scene
     this.staffManager.Setting(); // 직원관리 Scene
     this.recruitment.Setting(); // 직원채용 Scene
@@ -97,6 +90,7 @@ export class MainScene extends Scene {
     this.MenuMake(name, message, choices);
   }
 
+  // 테이블
   async table01() {
     let temp = GameManager.GetGameState();
 
@@ -107,6 +101,7 @@ export class MainScene extends Scene {
     await CanvasManager.tableInputPrompt({ headers, rows, colWidths, colAligns });
   }
 
+  // 내용
   async Message(value) {
     let loadingSpeed = this.GetLoadingSpeed();
     let textSpeed = this.GetTextSpeed();
@@ -146,7 +141,7 @@ export class MainScene extends Scene {
         await CanvasManager.typeWithDelay(`필요한 작업을 즉시 수행하시기 바랍니다.`, textSpeed, { color: 'green', style: 'bold' });
         await CanvasManager.typeWithDelay(`- 시스템 관리 모듈`, textSpeed, { color: 'green', style: 'bold' });
         await CanvasManager.promptForKeyPress();
-        CanvasManager.deleteText();     
+        CanvasManager.deleteText();
         break;
       case 3:
         break;

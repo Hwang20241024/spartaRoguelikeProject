@@ -141,8 +141,6 @@ export class RecruitmentManager extends Scene {
     result.battleType = Math.floor(Math.random() * 3) + 1;
 
     return result;
-    // let savePlayer = GameManager.entityManager.GetPlayers();
-    // savePlayer.Enqueue(new Entity.Player(1, '1번직원', 10, 0.8, 2, 0, false));
   }
 
   // 1-2. 채용성공.

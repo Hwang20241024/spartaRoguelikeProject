@@ -1,14 +1,11 @@
 import ansis from 'ansis';
 import figlet from 'figlet';
-import readlineSync from 'readline-sync';
 import inquirer from 'inquirer';
-
-import chalk from 'chalk';
 import Table from 'cli-table3';
-
 import cliSpinners from 'cli-spinners';
-
 import readline from 'readline';
+
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -209,7 +206,7 @@ export default class CanvasManager {
     if (arr.length && arr.length > index) {
       const result = await inquirer.prompt([arr[index]]);
 
-      // 개별로 쓰면 이럴 필요없는데. 여러군데에서 쓰니깐.. 동적으로 키이름 가져오기..
+      //  키이름 가져오기..
       let nameKey = Object.keys(result)[0];
       return result[nameKey];
     }

@@ -39,6 +39,7 @@ export class RepaymentScene extends Scene {
       } else if (typeof menuValue === 'number' && menuValue === 2) {
         this.SetisScene(false);
         await this.failInterestPayment(loadingSpeed, textSpeed);
+        this.utilityManager.FileClear();
         this.ispriceToPay = true;
       }
     }
@@ -104,6 +105,7 @@ export class RepaymentScene extends Scene {
     await CanvasManager.typeWithDelay(`관리자님의 결정을 기다립니다.`, textSpeed, { color: 'green', style: 'bold' });
     await CanvasManager.typeWithDelay(`더 이상의 지연은 용납되지 않습니다. `, textSpeed, { color: 'red', style: 'bold' });
   }
+  // 부분상환 완료
   async completeInterestPayment(loadingSpeed, textSpeed) {
     let debt = GameManager.GetGameState().debt;
     let interest = GameManager.GetGameState().interest;
